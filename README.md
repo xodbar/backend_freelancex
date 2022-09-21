@@ -1,2 +1,2 @@
-# backennd-freelancex
-temporary description
+# backend-freelancex
+Backend Part of FreelanceX
