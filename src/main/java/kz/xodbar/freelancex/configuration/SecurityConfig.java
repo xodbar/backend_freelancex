@@ -51,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.httpBasic().disable();
         http.csrf().disable();
+        http.cors().disable();
 
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -63,6 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/support",
                         "/api/health"
                 ).permitAll();
+
+        http.authorizeRequests()
+                .antMatchers("/error", "/error/", "error/**").permitAll();
 
         http.authorizeRequests().antMatchers(
                 "/swagger-ui/",

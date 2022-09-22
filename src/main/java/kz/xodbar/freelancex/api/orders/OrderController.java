@@ -72,21 +72,21 @@ public class OrderController {
         return ResponseEntity.ok(new GetOrderByIdResponse(orderService.getById(id), null));
     }
 
-    @GetMapping("/orderBy")
+    @PostMapping("/orderBy")
     public ResponseEntity<GetAllOrdersAndOrderByUseCaseOutput> getAllOrdersAndOrderByParam(
             @Validated @RequestBody GetAllOrdersAndOrderByUseCaseInput body
     ) {
         return ResponseEntity.ok(getAllOrdersAndOrderByUseCase.handle(body));
     }
 
-    @GetMapping("/filter/byPrice")
+    @PostMapping("/filter/byPrice")
     public ResponseEntity<FilterOrderByUseCaseOutput> filterOrdersByPrice(
             @Validated @RequestBody FilterOrderByPriceUseCaseInput body
     ) {
         return ResponseEntity.ok(filterOrderByPriceUseCase.handle(body));
     }
 
-    @GetMapping("/filter/byField")
+    @PostMapping("/filter/byField")
     public ResponseEntity<FilterOrderByUseCaseOutput> filterOrdersByField(
             @Validated @RequestBody FilterOrderByFieldUseCaseInput body
     ) {
