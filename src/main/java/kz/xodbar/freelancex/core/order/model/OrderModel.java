@@ -1,5 +1,6 @@
 package kz.xodbar.freelancex.core.order.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import kz.xodbar.freelancex.core.field.model.FieldModel;
 import kz.xodbar.freelancex.core.proposal.model.ProposalModel;
 import kz.xodbar.freelancex.core.user.model.User;
@@ -16,6 +17,17 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "t_orders")
+@SecondaryTables({
+        @SecondaryTable(
+                name = "t_fields_orders",
+                pkJoinColumns = {
+                        @PrimaryKeyJoinColumn(
+                                name = "orders_id",
+                                referencedColumnName = "id"
+                        )
+                }
+        )
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -56,11 +68,11 @@ public class OrderModel {
     @Column(name = "price", nullable = false)
     private Integer price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "field_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonBackReference
     private FieldModel field;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     private List<ProposalModel> proposals;
 
     public Order toDto() {
@@ -78,8 +90,13 @@ public class OrderModel {
                 this.createdAt.toLocalDateTime(),
                 this.deadline.toLocalDateTime(),
                 this.price,
-                this.field.toDto(),
-                this.proposals.stream().map(ProposalModel::toDto).collect(Collectors.toList())
+                this.field.getName(),
+                null
         );
+    }
+
+    @Override
+    public String toString() {
+        return "";
     }
 }

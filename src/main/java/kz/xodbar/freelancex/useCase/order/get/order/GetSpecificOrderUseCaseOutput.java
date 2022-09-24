@@ -1,4 +1,4 @@
-package kz.xodbar.freelancex.api.orders.response;
+package kz.xodbar.freelancex.useCase.order.get.order;
 
 import kz.xodbar.freelancex.core.order.model.Order;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GetOrderByIdResponse {
-    private Order result;
+public class GetSpecificOrderUseCaseOutput {
+    private Order order;
+    private Boolean hasAccessToUpdate;
+    private String requestedUserUsername;
     private String errorMessage;
 }

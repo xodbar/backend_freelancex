@@ -1,8 +1,6 @@
 package kz.xodbar.freelancex.api.orders;
 
-import kz.xodbar.freelancex.api.orders.response.GetOrderByIdResponse;
 import kz.xodbar.freelancex.core.order.model.OrderStatus;
-import kz.xodbar.freelancex.core.order.service.OrderService;
 import kz.xodbar.freelancex.useCase.order.create.CreateNewOrderUseCase;
 import kz.xodbar.freelancex.useCase.order.create.CreateNewOrderUseCaseInput;
 import kz.xodbar.freelancex.useCase.order.create.CreateNewOrderUseCaseOutput;
@@ -11,10 +9,9 @@ import kz.xodbar.freelancex.useCase.order.get.filter.byField.FilterOrderByFieldU
 import kz.xodbar.freelancex.useCase.order.get.filter.byField.FilterOrderByFieldUseCaseInput;
 import kz.xodbar.freelancex.useCase.order.get.filter.byPrice.FilterOrderByPriceUseCase;
 import kz.xodbar.freelancex.useCase.order.get.filter.byPrice.FilterOrderByPriceUseCaseInput;
-import kz.xodbar.freelancex.useCase.order.get.order.GetAllOrdersAndOrderByUseCase;
-import kz.xodbar.freelancex.useCase.order.get.order.GetAllOrdersAndOrderByUseCaseInput;
-import kz.xodbar.freelancex.useCase.order.get.order.GetAllOrdersAndOrderByUseCaseOutput;
-import kz.xodbar.freelancex.useCase.order.get.order.OrderByEnum;
+import kz.xodbar.freelancex.useCase.order.get.order.*;
+import kz.xodbar.freelancex.useCase.order.get.search.SearchOrderByTitleUseCase;
+import kz.xodbar.freelancex.useCase.order.get.search.SearchOrderByTitleUseCaseOutput;
 import kz.xodbar.freelancex.useCase.order.update.contractor.AssignContractorUseCase;
 import kz.xodbar.freelancex.useCase.order.update.contractor.AssignContractorUseCaseInput;
 import kz.xodbar.freelancex.useCase.order.update.contractor.AssignContractorUseCaseOutput;
@@ -51,7 +48,9 @@ public class OrderController {
 
     private final AddProposalUseCase addProposalUseCase;
 
-    private final OrderService orderService;
+    private final GetSpecificOrderUseCase getSpecificOrderUseCase;
+
+    private final SearchOrderByTitleUseCase searchOrderByTitleUseCase;
 
     @GetMapping
     public ResponseEntity<GetAllOrdersAndOrderByUseCaseOutput> getAllActiveOrders() {
@@ -64,29 +63,66 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<GetOrderByIdResponse> getOrder(@PathVariable Long id) {
-        if (orderService.getById(id) == null)
-            return ResponseEntity.ok(new GetOrderByIdResponse(null, "No such order!"));
+    @GetMapping("/allFinished")
+    public ResponseEntity<GetAllOrdersAndOrderByUseCaseOutput> getAllOrders() {
+        GetAllOrdersAndOrderByUseCaseOutput result =
+                getAllOrdersAndOrderByUseCase.handle(new GetAllOrdersAndOrderByUseCaseInput(
+                        OrderStatus.FINISHED,
+                        OrderByEnum.ORDER_BY_CREATED_AT_DESC
+                ));
 
-        return ResponseEntity.ok(new GetOrderByIdResponse(orderService.getById(id), null));
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/orderBy")
+    @GetMapping("/{id}")
+    public ResponseEntity<GetSpecificOrderUseCaseOutput> getOrder(@PathVariable Long id, HttpServletRequest request) {
+
+        String token = AuthenticationResolver.getAuthToken(request);
+
+        if (token == null)
+            return ResponseEntity.ok(new GetSpecificOrderUseCaseOutput(
+                    null,
+                    null,
+                    null,
+                    "Token is not present"
+            ));
+
+        GetSpecificOrderUseCaseOutput output = getSpecificOrderUseCase.handle(new GetSpecificOrderUseCaseInput(id), token);
+        return ResponseEntity.ok(output);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<SearchOrderByTitleUseCaseOutput> searchOrders(
+            HttpServletRequest request,
+            String query
+    ) {
+        String token = AuthenticationResolver.getAuthToken(request);
+
+        if (token == null)
+            return ResponseEntity.ok(new SearchOrderByTitleUseCaseOutput(
+                    null,
+                    "Incorrect token. Try log in again"
+            ));
+
+        SearchOrderByTitleUseCaseOutput output = searchOrderByTitleUseCase.handle(query, AuthenticationResolver.getAuthToken(request));
+        return ResponseEntity.ok(output);
+    }
+
+    @PostMapping("/orderBy")
     public ResponseEntity<GetAllOrdersAndOrderByUseCaseOutput> getAllOrdersAndOrderByParam(
             @Validated @RequestBody GetAllOrdersAndOrderByUseCaseInput body
     ) {
         return ResponseEntity.ok(getAllOrdersAndOrderByUseCase.handle(body));
     }
 
-    @GetMapping("/filter/byPrice")
+    @PostMapping("/filter/byPrice")
     public ResponseEntity<FilterOrderByUseCaseOutput> filterOrdersByPrice(
             @Validated @RequestBody FilterOrderByPriceUseCaseInput body
     ) {
         return ResponseEntity.ok(filterOrderByPriceUseCase.handle(body));
     }
 
-    @GetMapping("/filter/byField")
+    @PostMapping("/filter/byField")
     public ResponseEntity<FilterOrderByUseCaseOutput> filterOrdersByField(
             @Validated @RequestBody FilterOrderByFieldUseCaseInput body
     ) {
@@ -143,6 +179,7 @@ public class OrderController {
             HttpServletRequest request
     ) {
         String token = AuthenticationResolver.getAuthToken(request);
+
         if (token == null)
             return ResponseEntity.ok(new AddProposalUseCaseOutput(
                     null,

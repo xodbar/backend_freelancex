@@ -34,5 +34,7 @@ public interface OrderService {
 
     OrderModel getModelByTitle(String title);
 
+    List<Order> searchByTitle(String query);
+
     String clean();
 }

@@ -6,14 +6,14 @@ import kz.xodbar.freelancex.core.order.model.OrderModel;
 import kz.xodbar.freelancex.core.order.model.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderModel, Long> {
     OrderModel findByTitle(String title);
 
-    @Query(value = "SELECT * FROM develop.t_orders WHERE price >= ?1 AND price <= ?2", nativeQuery = true)
-    List<OrderModel> findAllByPriceFilter(Integer priceLessThan, Integer priceGreaterThan);
+    List<OrderModel> findAllByTitleContainingIgnoreCase(String query);
 
     List<OrderModel> findAllByStatusOrderByPriceAsc(OrderStatus status);
 

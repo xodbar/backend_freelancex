@@ -1,11 +1,11 @@
 package kz.xodbar.freelancex.core.order.model;
 
-import kz.xodbar.freelancex.core.field.model.Field;
 import kz.xodbar.freelancex.core.proposal.model.Proposal;
 import kz.xodbar.freelancex.core.user.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 public class Order {
     private Long id;
     private String title;
@@ -24,7 +25,7 @@ public class Order {
     private LocalDateTime createdAt;
     private LocalDateTime deadline;
     private Integer price;
-    private Field field;
+    private String field;
     private List<Proposal> proposals;
 
     @Override

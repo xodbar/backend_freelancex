@@ -1,9 +1,5 @@
 package kz.xodbar.freelancex.core.user.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import kz.xodbar.freelancex.core.role.model.RoleModel;
 import kz.xodbar.freelancex.core.role.service.RoleService;
 import kz.xodbar.freelancex.core.user.UserRepository;
@@ -15,6 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -171,10 +171,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changeIsBlocked(Long id, Boolean isBlocked) {
         UserModel model = userRepository.findById(id).orElseThrow();
         model.setIsBlocked(isBlocked);
         userRepository.save(model);
+    }
+
+    @Override
+    @Transactional
+    public UserModel updatePassword(String oldPassword, String newPassword, String username) {
+        try {
+            logger.info("Updating user password by oldPassword and newPassword for username: " + username);
+
+            UserModel userModel = userRepository.findByUsername(username);
+
+            if (!defaultPasswordEncoder.matches(oldPassword, userModel.getPassword()))
+                return null;
+
+            String encryptedPassword = defaultPasswordEncoder.encode(newPassword);
+            userModel.setPassword(encryptedPassword);
+
+            userModel = userRepository.save(userModel);
+
+            System.out.println("username " + userModel.getUsername() + " successfully changed password.");
+            return userModel;
+        } catch (Exception e) {
+            logger.error("Error while updating password for: " + username);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private List<RoleModel> getDefaultRoles() {

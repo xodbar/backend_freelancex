@@ -68,7 +68,7 @@ public class CreateNewOrderUseCase
                 throw new Exception("Order's field doesn't exists!");
             }
 
-            Field field = fieldService.getByName(input.getFieldName());
+            String field = fieldService.getByName(input.getFieldName()).getName();
 
             Order createdOrder = orderService.createOrder(new Order(
                     null,

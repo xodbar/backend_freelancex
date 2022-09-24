@@ -19,6 +19,8 @@ public interface UserService {
 
     void deleteUser(User user);
 
+    UserModel updatePassword(String oldPassword, String newPassword, String username);
+
     UserModel getModelById(Long id);
 
     UserModel getModelByUsername(String username);

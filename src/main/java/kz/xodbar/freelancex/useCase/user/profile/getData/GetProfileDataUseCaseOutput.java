@@ -1,4 +1,4 @@
-package kz.xodbar.freelancex.useCase.user.profile;
+package kz.xodbar.freelancex.useCase.user.profile.getData;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

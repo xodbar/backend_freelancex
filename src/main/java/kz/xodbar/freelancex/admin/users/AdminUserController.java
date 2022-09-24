@@ -5,6 +5,8 @@ import kz.xodbar.freelancex.core.user.service.UserService;
 import kz.xodbar.freelancex.useCase.user.admin.block.AdminBlockUserUseCase;
 import kz.xodbar.freelancex.useCase.user.admin.block.AdminBlockUserUseCaseInput;
 import kz.xodbar.freelancex.useCase.user.admin.block.AdminBlockUserUseCaseOutput;
+import kz.xodbar.freelancex.useCase.user.profile.updatePassword.UpdatePasswordUseCaseInput;
+import kz.xodbar.freelancex.useCase.user.profile.updatePassword.UpdatePasswordUseCaseOutput;
 import kz.xodbar.freelancex.util.AuthenticationResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

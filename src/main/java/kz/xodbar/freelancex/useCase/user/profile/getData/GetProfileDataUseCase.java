@@ -1,4 +1,4 @@
-package kz.xodbar.freelancex.useCase.user.profile;
+package kz.xodbar.freelancex.useCase.user.profile.getData;
 
 import kz.xodbar.freelancex.core.role.model.Role;
 import kz.xodbar.freelancex.core.user.model.User;

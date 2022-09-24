@@ -24,7 +24,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +58,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new Exception("This order already exists!");
 
             UserModel client = userService.getModelByUsername(order.getClient().getUsername());
-            FieldModel field = fieldService.getModelByName(order.getField().getName());
+            FieldModel field = fieldService.getModelByName(order.getField());
 
             return orderRepository.save(new OrderModel(
                     null,
@@ -86,7 +85,9 @@ public class OrderServiceImpl implements OrderService {
     public Order getById(Long id) {
         try {
             logger.info("Getting order by id: " + id);
-            return orderRepository.findById(id).orElseThrow().toDto();
+            Order model = orderRepository.findById(id).orElseThrow().toDto();
+            model.setProposals(proposalService.getAllByOrder(model.getId()));
+            return model;
         } catch (Exception e) {
             logger.error("Error while getting order by id: " + id);
             e.printStackTrace();
@@ -115,7 +116,9 @@ public class OrderServiceImpl implements OrderService {
     public Order getByTitle(String title) {
         try {
             logger.info("Getting order by title: " + title);
-            return orderRepository.findByTitle(title).toDto();
+            Order result = orderRepository.findByTitle(title).toDto();
+            result.setProposals(proposalService.getAllByOrder(result.getId()));
+            return result;
         } catch (Exception e) {
             logger.error("Error while getting order by title: " + title);
             e.printStackTrace();
@@ -130,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
 
             UserModel client = userService.getModelByUsername(order.getClient().getUsername());
             UserModel contractor = userService.getModelByUsername(order.getContractor().getUsername());
-            FieldModel field = fieldService.getModelByName(order.getField().getName());
+            FieldModel field = fieldService.getModelByName(order.getField());
 
             List<ProposalModel> proposalModels = new ArrayList<>();
             for (Proposal proposal : order.getProposals())
@@ -151,7 +154,9 @@ public class OrderServiceImpl implements OrderService {
                     proposalModels
             );
 
-            return orderRepository.save(model).toDto();
+            Order result = orderRepository.save(model).toDto();
+            result.setProposals(proposalService.getAllByOrder(result.getId()));
+            return result;
         } catch (Exception e) {
             logger.error("Error while updating order: " + order.toString());
             e.printStackTrace();
@@ -236,9 +241,7 @@ public class OrderServiceImpl implements OrderService {
                 default -> orderModels = null;
             }
 
-            return orderModels.stream()
-                    .map(OrderModel::toDto)
-                    .collect(Collectors.toList());
+            return convertModelsListToDto(orderModels);
         } catch (Exception e) {
             logger.error("Error while getting all orders by status: " + status + " and ordering: " + order);
             e.printStackTrace();
@@ -271,6 +274,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<Order> searchByTitle(String query) {
+        try {
+            logger.info("Searching orders by query: " + query);
+            return convertModelsListToDto(orderRepository.findAllByTitleContainingIgnoreCase(query));
+        } catch (Exception e) {
+            logger.info("Failed to search orders by query: " + query);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
     public String clean() {
         try {
             logger.warn("Deleting inactive orders");
@@ -291,6 +306,7 @@ public class OrderServiceImpl implements OrderService {
     private List<Order> convertModelsListToDto(List<OrderModel> orderModels) {
         List<Order> orders = new ArrayList<>();
         orderModels.forEach(orderModel -> orders.add(orderModel.toDto()));
+        orders.forEach(order -> order.setProposals(proposalService.getAllByOrder(order.getId())));
 
         return orders;
     }
