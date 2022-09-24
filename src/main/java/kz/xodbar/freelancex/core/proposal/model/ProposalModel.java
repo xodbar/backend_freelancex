@@ -1,5 +1,7 @@
 package kz.xodbar.freelancex.core.proposal.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import kz.xodbar.freelancex.core.order.model.Order;
 import kz.xodbar.freelancex.core.order.model.OrderModel;
 import kz.xodbar.freelancex.core.user.model.UserModel;
 import lombok.AllArgsConstructor;
@@ -26,8 +28,9 @@ public class ProposalModel {
     @JoinColumn(name = "candidate_id", referencedColumnName = "id", nullable = false)
     private UserModel candidate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private OrderModel order;
 
     @Column(nullable = false)
@@ -41,6 +44,16 @@ public class ProposalModel {
                 this.getId(),
                 this.getCandidate().toDto(),
                 this.getOrder().toDto(),
+                this.proposedPrice,
+                this.createdAt.toLocalDateTime()
+        );
+    }
+
+    public Proposal toDto(Order order) {
+        return new Proposal(
+                this.getId(),
+                this.getCandidate().toDto(),
+                order,
                 this.proposedPrice,
                 this.createdAt.toLocalDateTime()
         );
