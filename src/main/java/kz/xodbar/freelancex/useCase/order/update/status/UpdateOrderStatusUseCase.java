@@ -44,19 +44,18 @@ public class UpdateOrderStatusUseCase
 
             Order order = orderService.getById(input.getOrderId());
 
-            if (!order.getClient().getUsername().equals(user.getUsername())
-                    || !user.getRoles().contains(roleService.getById(1L))
-                    || !user.getRoles().contains(roleService.getById(2L))) {
-                output.setErrorMessage("Only creator of order and (ADMIN or MODERATOR) can change status of the order");
-                throw new Exception("Only creator of order and (ADMIN or MODERATOR) can change status of the order");
-            }
+            User contractor;
 
+            if (order.getContractor() == null)
+                contractor = null;
+            else contractor = order.getContractor();
+            
             Order updatedOrder = orderService.updateOrder(new Order(
                     order.getId(),
                     order.getTitle(),
                     order.getContent(),
                     order.getClient(),
-                    order.getContractor(),
+                    contractor,
                     order.isActive(),
                     input.getNewStatus(),
                     order.getCreatedAt(),

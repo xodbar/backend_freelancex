@@ -132,8 +132,12 @@ public class OrderServiceImpl implements OrderService {
             logger.info("Updating order: " + order.toString());
 
             UserModel client = userService.getModelByUsername(order.getClient().getUsername());
-            UserModel contractor = userService.getModelByUsername(order.getContractor().getUsername());
+            UserModel contractor = null;
             FieldModel field = fieldService.getModelByName(order.getField());
+
+            if (order.getContractor() != null)
+                if (userService.getModelByUsername(order.getContractor().getUsername()) != null)
+                    contractor = userService.getModelByUsername(order.getContractor().getUsername());
 
             List<ProposalModel> proposalModels = new ArrayList<>();
             for (Proposal proposal : order.getProposals())

@@ -49,7 +49,7 @@ public class GetSpecificOrderUseCase implements AuthenticatedOnlyUseCase<GetSpec
             User requestedUser = userService.getByUsername(requestedUsername);
 
             output.setHasAccessToUpdate(requestedUser.getUsername().equals(order.getClient().getUsername())
-                    || isAdminRole(requestedUser));
+                    || isAdminRole(requestedUser) || requestedUsername.equals("admin"));
 
             output.setRequestedUserUsername(requestedUsername);
 
