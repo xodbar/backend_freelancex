@@ -13,3 +13,12 @@ Documentation
 ### Secondary functions:
 - Editing profile (information, password)
 - Sorting and filtering orders list
+
+## Documentation for developers
+### Technology stack:
+- Java 18
+- Spring Boot
+- Spring Security (JWT)
+- Spring Data JPA + Hibernate
+- PostgreSQL
+- Flyway
